@@ -1,0 +1,131 @@
+echo "# Robo_autonomo_sensor_ultra" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/aarcade/Robo_autonomo_sensor_ultra.git
+git push -u origin master
+#include <Ultrasonic.h>
+
+//Primeiramente, é feita a configuração do sensor ultrassônico HC-SR04
+
+#include <Ultrasonic.h>; 
+//Inclui a biblioteca do sensor ultrassônico HC-SR04
+
+#define TRIGGER_PIN 4 
+//Define o pino de saída 4 do Arduino como o Trigger do sensor ultrassônico HC-SR04
+
+#define ECHO_PIN 5 
+//Define o pino de entrada 5 do Arduino como o Echo do sensor ultrassônico HC-SR04
+
+Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN); 
+//Instancia o objeto ultrassonic da biblioteca Ultrasonic, dando o nome certo que será utilizado para nos referir aos pinos Trigger e Echo
+
+#define IN1 6
+#define IN2 7
+#define IN3 8
+#define IN4 9
+//Define os pinos 6, 7, 8 e 9 do Arduino para controlar o direcionamento dos motores. São utilizados os mesmos nomes dos pinos
+//do módulo L298N. Sendo assim, definimos os pinos do motor A (motor da direita) com o IN1 e o IN2 e definimos os pinos do
+//motor B (motor da esquerda) com o IN3 e o IN4
+
+#define ENA 10
+#define ENB 11
+//Define os pinos 10 e 11 do Arduino para o controle da velocidade dos motores A e B. Novamente são utilizados os mesmos nomes dos
+//pinos do módulo L298N. Sendo assim, definimos os pinos do motor A com o ENA e definimos os pinos do motor B com o ENB
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  //Inicializa o pino IN1 como um pino de saída para o motor A
+  pinMode(IN2, OUTPUT);
+  //Inicializa o pino IN2 como um pino de saída para o motor A
+  pinMode(IN3, OUTPUT);
+  //Inicializa o pino IN3 como um pino de saída para o motor B
+  pinMode(IN4, OUTPUT);
+  //Inicializa o pino IN4 como um pino de saída para o motor B
+  pinMode(ENA, OUTPUT);
+  //Inicializa o pino ENA como um pino de controle de velocidade para o motor A
+  pinMode(ENB, OUTPUT);
+  //Inicializa o pino ENB como um pino de controle de velocidade para o motor B
+
+  //É utilizado um controle de pulsos PWM para controlar a velocidade dos motores. 
+
+  analogWrite(ENA, 110);
+  //Regula a velocidade do controle PWM do motor A (de 0 a 255 foi escolhido o valor 110)
+  analogWrite(ENB, 110);
+  //Regula a velocidade do controle PWM do motor B (de 0 a 255 foi escolhido o valor 110)
+
+  delay(1000);
+  //Faz com que 1 segundo se passe antes de iniciar o código
+}
+
+void loop() {
+  robot_forward();
+  //Faz a chamada da função que fará o robô ir pra frente
+
+  float dist_cm = distance();
+  //Declara a variável que armazenará a distância do obstáculo encontrado à frente do robô
+
+  if(dist_cm < 30) {
+    decision();
+  }
+  //Checará se a distância é menor que 30 centímetros. se esse for o caso, é chamada a função que mudará o percurso do robô
+
+  delay(100);
+  //Faz com que 1 décimo de segundo se passe antes de refazer a leitura do loop
+
+}
+
+//Definição das funções
+
+float distance() {
+  float convCM;
+  //Declara a variável de nome convCM (convertido para centímetros) e tipo float
+
+  long microsec = ultrasonic.timing();
+  //Declara a variável de nome microsec e tipo long e associa a ela o tempo em microssegundos
+
+  convCM = ultrasonic.convert(microsec, Ultrasonic::CM);
+  //Associa a variável convCM à função própria da biblioteca que converte a distância em centímetros
+
+  return(convCM);
+  //Retorna a distância em centímetros para a função
+
+  delay(10);
+} 
+//Função que mede a distância em centímetros ente o robô e o obstáculo
+
+void robot_forward() {
+  digitalWrite(IN1,HIGH);
+  digitalWrite(IN2,LOW);
+  digitalWrite(IN3,HIGH);
+  digitalWrite(IN4,LOW);
+}
+//Função que define valores para os pinos IN1, IN2, IN3 e IN4 e faz o robô andar para frente
+
+void robot_left() {
+  digitalWrite(IN1,HIGH);
+  digitalWrite(IN2,LOW);
+  digitalWrite(IN3,LOW);
+  digitalWrite(IN4,HIGH); 
+}
+//Função que define valores para os pinos IN1, IN2, IN3 e IN4 e faz o robô virar para a esquerda 
+
+void robot_stop() {
+  digitalWrite(IN1,LOW);
+  digitalWrite(IN2,LOW);
+  digitalWrite(IN3,LOW);
+  digitalWrite(IN4,LOW);   
+}
+//Função que define valores para os pinos IN1, IN2, IN3 e IN4 e faz o robô parar
+
+void decision() {
+  robot_stop();
+  delay(500);
+  robot_left();
+  delay(400);                       
+  robot_stop();
+  delay(500);
+}
+//Função que faz o robô tomar uma decisão baseado no processo de identificar um obstáculo, parar, virar para a esquerda
+//E, se não houver outro obstáculo, continuar em frente
+                
