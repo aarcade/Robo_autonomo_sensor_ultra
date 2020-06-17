@@ -6,6 +6,8 @@ git remote add origin https://github.com/aarcade/Robo_autonomo_sensor_ultra.git
 git push -u origin master
 #include <Ultrasonic.h>
 
+#include <Ultrasonic.h>
+
 //Primeiramente, é feita a configuração do sensor ultrassônico HC-SR04
 
 #include <Ultrasonic.h>; 
@@ -128,4 +130,3 @@ void decision() {
 }
 //Função que faz o robô tomar uma decisão baseado no processo de identificar um obstáculo, parar, virar para a esquerda
 //E, se não houver outro obstáculo, continuar em frente
-                
